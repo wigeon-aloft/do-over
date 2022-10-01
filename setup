@@ -1,27 +1,30 @@
 #!/usr/bin/bash
 
+# TODO change test file paths (i.e. `./`) for `cp` commands to the actual prod filepaths (i.e. `~/`)
+
 # Install packages you might want
 echo $(printf "Hello! This scripts installs your frequently used packages and does some KDE config. This should save you some time on a fresh install. :)")
 # pacman -S thefuck oh-my-zsh nmap jre-openjdk calibre neovim neovide xclip wireshark-cli wireshark-qt whois dbeaver unzip vim flameshot
 
-# TODO Install AUR packages
-cd ./aur/
+# # Install AUR packages
+# cd ./aur/
 
-# Clone yay-git
-echo "Installing yay"
-pacman -S --needed base-devel
-sudo -H -u willem git clone https://aur.archlinux.org/yay-git.git
-cd yay-git
-sudo -H -u willem makepkg -si
-rm -rf ./yay-git
-cd ..
+# # Clone yay-git
+# echo "Installing yay"
+# pacman -S --needed base-devel
+# sudo -H -u willem git clone https://aur.archlinux.org/yay-git.git
+# cd yay-git
+# sudo -H -u willem makepkg -si
+# rm -rf ./yay-git
+# cd ..
 
-# Install AUR packages
-echo "Installing AUR packages"
-echo $USER
-sudo -H -u willem yay -S nordvpn-bin postman-bin -y
+# # Install AUR packages
+# echo "Installing AUR packages"
+# echo $USER
+# sudo -H -u willem yay -S nordvpn-bin postman-bin -y
 
-# Login to NordVPN
+# TODO Enable NordVPN
+systemctl enable --now nordvpnd
 
 # Overwrite current keyboard shortcuts with config from `.config/kglobalshortcutsrc`
 echo "Copying keyboard shortcuts"
@@ -35,8 +38,16 @@ cp -r .config/gruvboxplasma ./.local/share/plasma/desktoptheme/gruvboxplasma
 # Set the splash screen
 cp ./config/ksplashrc ./.config/ksplashrc
 
-# TODO Change the ownership of the files in `.config` to the current user
+# TODO Window behaviour
 
+# TODO Window decorations
+
+# TODO Fonts
+
+# TODO Desktop layout
+ cp config/plasma-org.kde.plasma.desktop-appletsrc ./.config/plasma-org.kde.plasma.desktop-appletsrc
+
+# TODO Change the ownership of the files in `.config` to willem
 
 # Prompt the user to signout and signin again
 echo "Done! Changes will take effect once you log out."
