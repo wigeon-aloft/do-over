@@ -1,0 +1,42 @@
+#!/usr/bin/bash
+
+# Install packages you might want
+echo $(printf "Hello! This scripts installs your frequently used packages and does some KDE config. This should save you some time on a fresh install. :)")
+# pacman -S thefuck oh-my-zsh nmap jre-openjdk calibre neovim neovide xclip wireshark-cli wireshark-qt whois dbeaver unzip vim flameshot
+
+# TODO Install AUR packages
+cd ./aur/
+
+# Clone yay-git
+echo "Installing yay"
+pacman -S --needed base-devel
+sudo -H -u willem git clone https://aur.archlinux.org/yay-git.git
+cd yay-git
+sudo -H -u willem makepkg -si
+rm -rf ./yay-git
+cd ..
+
+# Install AUR packages
+echo "Installing AUR packages"
+echo $USER
+sudo -H -u willem yay -S nordvpn-bin postman-bin -y
+
+# Login to NordVPN
+
+# Overwrite current keyboard shortcuts with config from `.config/kglobalshortcutsrc`
+echo "Copying keyboard shortcuts"
+cp ./config/kglobalshortcutsrc ./.config/kglobalshortcutsrc
+
+# Clone Gruvbox theme and install
+echo "Installing GruvboxPlasma theme"
+git clone https://www.opencode.net/adhe/gruvboxplasma.git .config/gruvboxplasma
+cp -r .config/gruvboxplasma ./.local/share/plasma/desktoptheme/gruvboxplasma
+
+# Set the splash screen
+cp ./config/ksplashrc ./.config/ksplashrc
+
+# TODO Change the ownership of the files in `.config` to the current user
+
+
+# Prompt the user to signout and signin again
+echo "Done! Changes will take effect once you log out."
