@@ -10,7 +10,8 @@ Do-over is a script that does some admin tasks to configure a Manjaro machine to
 
 ## Usage
 Run the `setup` script.
+
 ```
-    sudo chmod +x ./setup
-    sudo ./setup
+chmod +x ./setup
+./setup
 ```

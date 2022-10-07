@@ -1,53 +1,137 @@
 #!/usr/bin/bash
+# This is a script to set up my Manjaro/Arch/KDE environment like I like it :)
+echo "do-over v0.1"
+
+# Check the linux distro - must be Arch-based
+# if [ $(cat /etc/os-release | grep "ID_LIKE") != "ID_LIKE=arch" ]; then
+if [ "$(grep "ID_LIKE" /etc/os-release)" != "ID_LIKE=arch" ]; then
+    echo "This script cannot be run on a non-Arch based distro"
+    exit 1
+fi
+
+# Find the username of the user that ran the script
+LOGIN_USER=$(logname)
+
+# Stop a user logged in as root from running this script
+if [ "$LOGIN_USER" = "root" ]; then
+    echo "Script should not be run as root. Please log in as another user and try again"
+    exit 1
+fi
+
 
 # TODO change test file paths (i.e. `./`) for `cp` commands to the actual prod filepaths (i.e. `~/`)
 
-# Install packages you might want
-echo $(printf "Hello! This scripts installs your frequently used packages and does some KDE config. This should save you some time on a fresh install. :)")
-# pacman -S thefuck oh-my-zsh nmap jre-openjdk calibre neovim neovide xclip wireshark-cli wireshark-qt whois dbeaver unzip vim flameshot
+# Greet the user
+echo "Hello! This scripts installs your frequently used packages and does some KDE config. This should save you some time on a fresh install :)"
+echo "If you did not run this script as sudo you may be prompted for your password later"
 
+# Install pacman packages
+read -n1 -r -p "Install pacman packages? y/n "
+valid_answer=0
+while [ $valid_answer = 0 ]; do
+    if [ "$REPLY" = 'y' ]; then
+        # Install pacman packages
+        valid_answer=1
+        echo "Installing pacman packages..."
+        pacman -S thefuck oh-my-zsh nmap jre-openjdk calibre neovim neovide xclip wireshark-cli wireshark-qt whois dbeaver unzip vim flameshot virtualbox virt-manager mariadb
+    elif [ "$REPLY" = 'n' ]; then
+        # Skip pacman packages 
+        valid_answer=1
+        echo "Skipping pacman packages"
+    else
+        # Prompt the user for a valid input
+        printf "Please enter either 'y' or 'n's\n"
+    fi
+done
+
+# TODO uncomment the below lines before pushing to prod
 # # Install AUR packages
 # cd ./aur/
 
-# # Clone yay-git
+# # Clone yay-git for AUR packages
 # echo "Installing yay"
 # pacman -S --needed base-devel
-# sudo -H -u willem git clone https://aur.archlinux.org/yay-git.git
+# sudo -H -u LOGIN_USER git clone https://aur.archlinux.org/yay-git.git
 # cd yay-git
-# sudo -H -u willem makepkg -si
+# sudo -H -u $LOGIN_USER makepkg -si
 # rm -rf ./yay-git
 # cd ..
 
-# # Install AUR packages
+# # Install Postman
 # echo "Installing AUR packages"
-# echo $USER
-# sudo -H -u willem yay -S nordvpn-bin postman-bin -y
+# yay -S postman-bin -y
 
-# TODO Enable NordVPN
-systemctl enable --now nordvpnd
+# ## NordVPN setup
+# valid_answer=0
 
-# Overwrite current keyboard shortcuts with config from `.config/kglobalshortcutsrc`
-echo "Copying keyboard shortcuts"
-cp ./config/kglobalshortcutsrc ./.config/kglobalshortcutsrc
+# # Start the loop and wait for a valid answer (i.e. 'y' or 'n')
+# while [ $valid_answer = 0 ]; do
+#     read -r -n1 -p "Do you want to set up NordVPN? y/n "
+#     printf "\n"
+#     if [ $REPLY = 'y' ]; then
+#         valid_answer=1
 
-# Clone Gruvbox theme and install
-echo "Installing GruvboxPlasma theme"
-git clone https://www.opencode.net/adhe/gruvboxplasma.git .config/gruvboxplasma
-cp -r .config/gruvboxplasma ./.local/share/plasma/desktoptheme/gruvboxplasma
+#         # Download the NordVPN AUR package
+#         yay -S nordvpn-bin -y
 
-# Set the splash screen
-cp ./config/ksplashrc ./.config/ksplashrc
+#         # Get login details from user
+#         read -r -p "Enter your NordVPN username: " NORDVPN_USER
+#         read -r -s -p "Enter your NordVPN password: " NORDVPN_PASS
 
-# TODO Window behaviour
+#         # Enable the system service and login
+#         systemctl enable --now nordvpnd
+#         nordvpn login --legacy --username $NORDVPN_USER --password $NORDVPN_PASS
 
-# TODO Window decorations
+#     elif [ $REPLY = 'n' ]; then
+#         # Break out of loop, user doesn't want NordVPN
+#         valid_answer=1
+#         printf "Skipping NordVPN setup\n"
+#     else
+#         # Prompt the user for a valid input
+#         printf "Please enter either 'y' or 'n's\n"
+#     fi
+# done
+
+# TODO Install snap packages
+
+## KDE setup
+# Check if KDE is installed
+if [ "$XDG_CURRENT_DESKTOP" = 'KDE' ]; then
+    echo "Configuring KDE"
+    # Set up KDE related things
+
+    # # Overwrite current keyboard shortcuts with config from `.config/kglobalshortcutsrc`
+    # echo "Copying keyboard shortcuts"
+    # cp ./config/kglobalshortcutsrc ./.config/kglobalshortcutsrc
+
+    # # Clone Gruvbox theme and install
+    # echo "Installing GruvboxPlasma theme"
+    # git clone https://www.opencode.net/adhe/gruvboxplasma.git .config/gruvboxplasma
+    # cp -r .config/gruvboxplasma ./.local/share/plasma/desktoptheme/gruvboxplasma
+
+    # # Set the splash screen
+    # cp ./config/ksplashrc ./.config/ksplashrc
+
+    # TODO Window behaviour
+
+    # TODO Window decorations
+
+    # # TODO Desktop layout
+    #  cp config/plasma-org.kde.plasma.desktop-appletsrc ./.config/plasma-org.kde.plasma.desktop-appletsrc
+
+    # Restart KDE desktop environment to load changes
+    # kquitapp5 plasmashell || killall plasmashell && kstart5 plasmashell
+    true
+fi
+
+# TODO configure konsole (theme, etc.)
 
 # TODO Fonts
+# Install fonts and set font sizes
 
-# TODO Desktop layout
- cp config/plasma-org.kde.plasma.desktop-appletsrc ./.config/plasma-org.kde.plasma.desktop-appletsrc
-
-# TODO Change the ownership of the files in `.config` to willem
+# # Change the ownership of the files in `/home/$LOGIN_USER/.config` to the user who ran the script
+# echo "Changing ownership of the ~/.config directory"
+# chown -R $LOGIN_USER:$LOGIN_USER ./config
 
 # Prompt the user to signout and signin again
 echo "Done! Changes will take effect once you log out."
